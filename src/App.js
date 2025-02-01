@@ -63,10 +63,13 @@ import MakePayment from "./pages/admin/MakePayment";
 import RaisePayment from "./pages/admin/RaisePayment";
 import TransactionHistory from "./pages/admin/TransactionHistory";
 import ViewStudent from "./pages/admin/ViewStudent";
+import ClassSection from "./pages/admin/ClassSection";
+import {QueryClientProvider,QueryClient} from "@tanstack/react-query"
 
 const App = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.userInfo.user);
+  const queryClient = new QueryClient()
 
   const getClass = async () => {
     const getClass = await axios.get(
@@ -114,6 +117,7 @@ const App = () => {
 
   return (
     <div style={{ backgroundColor: "#FCFCFC " }}>
+      <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Navbar />
         <div className="d-flex">
@@ -152,6 +156,7 @@ const App = () => {
                 <Route path="/admin/announcement" element={<Announcement />} />
                 <Route path="/admin/attendance" element={<Attendance />} />
                 <Route path="/admin/classes" element={<Classes />} />
+                <Route path="/admin/classes/:classID" element={<ClassSection />} />
                 <Route path="/admin/exam" element={<Exam />} />
                 <Route path="/admin/profile" element={<ProfileUpdate />} />
                 <Route path="/admin/student" element={<Student />} />
@@ -218,6 +223,7 @@ const App = () => {
         </div>
         <Footer/>
       </BrowserRouter>
+      </QueryClientProvider>
     </div>
   );
 };

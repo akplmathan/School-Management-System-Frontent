@@ -7,9 +7,6 @@ import { Link } from "react-router-dom";
 import { RotatingLines, TailSpin } from "react-loader-spinner";
 import { IoIosPeople, IoMdClose } from "react-icons/io";
 import { MdDelete, MdDownload, MdEdit, MdMultipleStop } from "react-icons/md";
-import logo from "../../LOGO/LOGO.png";
-import { ReactToPrint } from "react-to-print";
-import { IoMdDownload } from "react-icons/io";
 import SideNav from "./SideNav";
 import admissionForm from '../../FORM/ADMISSION FORM.pdf'
 
@@ -41,7 +38,7 @@ const AdmissionForm= () => {
   // register Student//
   const [formData, setFormData] = useState({
     image: "",
-    currentSession: "",
+    currentSession: `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
     name: "",
     emis: "",
     parent: "", // Parent ID
@@ -72,6 +69,7 @@ const AdmissionForm= () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  console.log(formData)
 
 
   const convertToFormData = (formData) => {
