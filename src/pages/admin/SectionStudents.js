@@ -12,7 +12,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 const SectionStudents = () => {
   const token = localStorage.getItem("token")
-  const {startYear,className} = useLocation().state;
+  const location = useLocation().state;
   const [spinner, setSpinner] = useState(true)
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false)
@@ -28,9 +28,9 @@ const SectionStudents = () => {
     name: "",
     emis: "",
     adhar: "",
-    className,
+    className:location?.className,
     section:"",
-    startYear,
+    startYear:location?.startYear,
     fatherName: "",
     motherName: "",
     parentPhone: "",
@@ -57,8 +57,6 @@ const SectionStudents = () => {
 
   });
 
-  
-console.log(formData)
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -120,7 +118,7 @@ console.log(formData)
   }, [studentData?.data])
   return (
     <div className='w-100 '>
-      <h2 className='w-100 bg-success mt-1 text-center p-3 text-light fw-bold'>{className}    Section-{studentData.data?.section.section}</h2>
+      <h2 className='w-100 bg-success mt-1 text-center p-3 text-light fw-bold'>{location?.className}    Section-{studentData.data?.section.section}</h2>
       {addStudent && <div
         style={{
           position: "fixed",
@@ -648,7 +646,7 @@ console.log(formData)
 
       <div>
 
-        <div className="btn btn-info px-5 py-2" onClick={()=>setAddStudent(true)}><FaPlus /> Add Student</div>
+       {location?.startYear && <div className="btn btn-info px-5 py-2" onClick={()=>setAddStudent(true)}><FaPlus /> Add Student</div>}
       </div>
       {
         // section && <div className='h5 d-flex p-2  justify-content-between'>
