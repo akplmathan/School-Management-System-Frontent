@@ -9,13 +9,14 @@ import { IoMdClose } from "react-icons/io";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import SideNav from "./SideNav";
+import { useQuery } from "@tanstack/react-query";
 
 const Classes = () => {
-  const classInfo = useSelector((state) => state.classInfo.class);
+  // const classInfo = useSelector((state) => state.classInfo.class);
   const sectionInfo = useSelector((state) => state.sectionInfo.section);
   const teacherInfo = useSelector((state) => state.teacherInfo.teacher);
   const navigate = useNavigate()
-
+  const [classInfo,setClassInfo] = useState([])
   //create class Data
   const [class1, setClass1] = useState({
     className: "",
@@ -23,6 +24,22 @@ const Classes = () => {
     startYear: "",
     endYear: ""
   })
+  const getYearBasedOnFebruary = () => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    return today.getMonth() >= 1 ? currentYear - 1 : currentYear;
+};
+
+  const classData = useQuery({
+    queryKey:["classData"],
+    queryFn :() =>  fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllClass?startYear=${getYearBasedOnFebruary()}`).then((data)=> data.json())
+  })
+
+  console.log(classData.data)
+
+  useEffect(()=>{
+      setClassInfo(classData?.data)
+    },[classData?.data])
 
   //for create class function assign data to values
   const handleClassChange1 = (e) => {
@@ -33,6 +50,9 @@ const Classes = () => {
       [name]: value
     }))
   }
+
+
+
 
 
   const [editClass, setEditClass] = useState(false);
@@ -66,36 +86,7 @@ const Classes = () => {
   const [className, setClassName] = useState("");
   const [section, setSection] = useState("");
 
-  const handleAddSection = async () => {
-    try {
-      setLoading2(true);
 
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/admin/sectionReg`,
-        {
-          classID: className,
-          section,
-          classTeacher: teacherName,
-        },
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-
-      setLoading2(false);
-
-      if (response.status == 201) {
-        enqueueSnackbar("Section Added SuccessFully", { variant: "success" });
-        setAddSection(false);
-      } else {
-        enqueueSnackbar(response.data.msg, { variant: "warning" });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const handleClassRegister = async () => {
     try {
@@ -127,7 +118,7 @@ const Classes = () => {
 
     <div className="w-100">
       <SideNav />
-      <h2 className="text-center p-3 my-3 bg-success text-light w-100 fw-bold ">Manage Classes</h2>
+      <h2 className="text-center p-3 my-3 bg-success text-light w-100 fw-bold ">Manage Classes ({`${getYearBasedOnFebruary()}-${getYearBasedOnFebruary()+1}`})</h2>
 
       {/* tabs ************************************************************************************************************** */}
 
@@ -153,106 +144,6 @@ const Classes = () => {
             ></div>
           )}
 
-          {/* Add Section */}
-          {addSection && (
-            <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                backgroundColor: "rgba(0, 0, 0, 0.59)",
-                width: "100%",
-                height: "100vh",
-                zIndex: 100,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <div
-                className="container w-50 bg-success-subtle p-3 rounded"
-                style={{ opacity: 1 }}
-              >                  <div className="w-100 d-flex fw-bold justify-content-end"><IoMdClose size={25} onClick={() => { setAddSection(false) }} /></div>
-                <h2 className="text-center fw-bold">
-                  Create Section
-                </h2>
-                <div className="input-group mb-2">
-                  <label htmlFor="" className="fw-semibold fs-5 mb-2">
-                    {" "}
-                    Class
-                  </label>
-                  <div class="input-group mb-3">
-                    <select
-                      value={className}
-                      onChange={(e) => setClassName(e.target.value)}
-                      class="form-select"
-                      id="inputGroupSelect02"
-                    >
-                      <option value="">Choose..</option>
-                      {classInfo?.map((item, i) => {
-                        return (
-                          <option value={item._id}>{item?.className}</option>
-                        );
-                      })}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="input-group mb-2">
-                  <label htmlFor="" className="fw-semibold fs-5 mb-2">
-                    {" "}
-                    Section
-                  </label>
-                  <div class="input-group mb-3">
-                    <input
-                      value={section}
-                      onChange={(e) =>
-                        setSection(e.target.value.toUpperCase())
-                      }
-                      type="text"
-                      class="form-control"
-                      aria-label="Username"
-                      placeholder=" A to Z"
-                      aria-describedby="basic-addon1"
-                    />
-                  </div>
-                </div>
-
-                <div className="input-group mb-2">
-                  <label htmlFor="" className="fw-bold fs-5 mb-2">
-                    {" "}
-                    Teacher
-                  </label>
-                  <div class="input-group mb-3">
-                    <select
-                      value={teacherName}
-                      onChange={(e) => {
-                        setTeacherName(e.target.value);
-                      }}
-                      class="form-select"
-                      id="inputGroupSelect02"
-                    >
-                      <option value="">Choose..</option>
-                      {teacherInfo?.map((item, i) => {
-                        return (
-                          <option key={i} value={item._id}>
-                            {item?.name}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
-                </div>
-                <button
-                  className="btn btn-primary "
-                  onClick={() => handleAddSection()}
-                >
-                  {" "}
-                  Add New Section
-                </button>
-              </div>
-            </div>
-          )}
 
           <ul
             class="nav nav-tabs bg-secondary-subtle pt-1 ps-2 w-100 m-0 p-0"
@@ -316,14 +207,16 @@ const Classes = () => {
                 {
                   classInfo?.length > 0 ?
                     classInfo?.map((item, index) => {
-                      return <Link to={`/admin/classes/${item._id}`}><div key={index}  style={{
+                      return <div className="col-12 col-md-6 col-lg-4 col-xxl-3 ">
+                        <Link to={`/admin/classes/${item._id}`}><div key={index}  style={{
                         color: "white",
                         background:
                           "linear-gradient(130deg, rgba(61,54,177,1) 28%, rgba(0,212,255,1) 100%)",
-                      }} className="col-12 col-md-6 col-lg-4 col-xxl-3 p-4 text-center">
+                      }} className="p-4 text-center">
                         <h4>{item.className}</h4>
                        
                       </div></Link>
+                      </div>
                     })
                     : <h6>No Data Found</h6>
                 }

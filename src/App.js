@@ -65,6 +65,7 @@ import TransactionHistory from "./pages/admin/TransactionHistory";
 import ViewStudent from "./pages/admin/ViewStudent";
 import ClassSection from "./pages/admin/ClassSection";
 import {QueryClientProvider,QueryClient} from "@tanstack/react-query"
+import StudentSection from "./pages/admin/StudentSection";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -160,6 +161,7 @@ const App = () => {
                 <Route path="/admin/exam" element={<Exam />} />
                 <Route path="/admin/profile" element={<ProfileUpdate />} />
                 <Route path="/admin/student" element={<Student />} />
+                <Route path="/admin/student/section/:classID" element={<StudentSection/>} />
                 <Route path="/admin/teacher" element={<Teacher />} />
                 <Route path="/admin/parents" element={<Parents />} />
                 <Route path="/admin/subject" element={<Subject />} />
