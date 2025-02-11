@@ -4,7 +4,7 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 import { GetAllClasss } from "../../redux/slice/classSlice";
 import { useSelector } from "react-redux";
-import { RotatingLines, TailSpin } from "react-loader-spinner";
+import { LineWave, Radio, RotatingLines, TailSpin, Watch } from "react-loader-spinner";
 import { IoMdClose } from "react-icons/io";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -16,7 +16,7 @@ const Classes = () => {
   const sectionInfo = useSelector((state) => state.sectionInfo.section);
   const teacherInfo = useSelector((state) => state.teacherInfo.teacher);
   const navigate = useNavigate()
-  const [classInfo,setClassInfo] = useState([])
+  const [classInfo, setClassInfo] = useState([])
   //create class Data
   const [class1, setClass1] = useState({
     className: "",
@@ -28,18 +28,18 @@ const Classes = () => {
     const today = new Date();
     const currentYear = today.getFullYear();
     return today.getMonth() >= 1 ? currentYear - 1 : currentYear;
-};
+  };
 
   const classData = useQuery({
-    queryKey:["classData"],
-    queryFn :() =>  fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllClass?startYear=${getYearBasedOnFebruary()}`).then((data)=> data.json())
+    queryKey: ["classData"],
+    queryFn: () => fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllClass?startYear=${getYearBasedOnFebruary()}`).then((data) => data.json())
   })
 
   console.log(classData.data)
 
-  useEffect(()=>{
-      setClassInfo(classData?.data)
-    },[classData?.data])
+  useEffect(() => {
+    setClassInfo(classData?.data)
+  }, [classData?.data])
 
   //for create class function assign data to values
   const handleClassChange1 = (e) => {
@@ -50,11 +50,6 @@ const Classes = () => {
       [name]: value
     }))
   }
-
-
-
-
-
   const [editClass, setEditClass] = useState(false);
   const [editSection, setEditSection] = useState(false);
   const [addSection, setAddSection] = useState(false);
@@ -118,7 +113,7 @@ const Classes = () => {
 
     <div className="w-100">
       <SideNav />
-      <h2 className="text-center p-3 my-3 bg-success text-light w-100 fw-bold ">Manage Classes ({`${getYearBasedOnFebruary()}-${getYearBasedOnFebruary()+1}`})</h2>
+      <h2 className="text-center p-3 my-3 bg-success text-light w-100 fw-bold ">Manage Classes ({`${getYearBasedOnFebruary()}-${getYearBasedOnFebruary() + 1}`})</h2>
 
       {/* tabs ************************************************************************************************************** */}
 
@@ -204,18 +199,19 @@ const Classes = () => {
             >
 
               <div className="row gap-3">
-                {
+                {classData.isLoading ? <div className="d-flex w-100 justify-content-center "> <LineWave  /> </div> :
+
                   classInfo?.length > 0 ?
                     classInfo?.map((item, index) => {
                       return <div className="col-12 col-md-6 col-lg-4 col-xxl-3 ">
-                        <Link to={`/admin/classes/${item._id}`}><div key={index}  style={{
-                        color: "white",
-                        background:
-                          "linear-gradient(130deg, rgba(61,54,177,1) 28%, rgba(0,212,255,1) 100%)",
-                      }} className="p-4 text-center">
-                        <h4>{item.className}</h4>
-                       
-                      </div></Link>
+                        <Link to={`/admin/classes/${item._id}`}><div key={index} style={{
+                          color: "white",
+                          background:
+                            "linear-gradient(130deg, rgba(61,54,177,1) 28%, rgba(0,212,255,1) 100%)",
+                        }} className="p-4 text-center">
+                          <h4>{item.className}</h4>
+
+                        </div></Link>
                       </div>
                     })
                     : <h6>No Data Found</h6>

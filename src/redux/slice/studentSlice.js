@@ -18,9 +18,10 @@ export const studentSlice = createSlice({
 
 export const GetAllStudents = () => {
   const role = localStorage.getItem('role')
+  const currentYear = localStorage.getItem("currentYear")
   return async (dispatch) => {
     if (role) {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllStudents`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllStudents?startYear=${currentYear}`);
 
       dispatch(addStudent(response.data));
     }

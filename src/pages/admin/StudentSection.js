@@ -23,19 +23,16 @@ const StudentSection = () => {
     return (
         <div className='w-100'> 
         
-      <h2 className="text-center p-3 my-3 bg-success text-light w-100 fw-bold ">{classData.data?.className}</h2>
+      {classData.data?.className && <h2 className="text-center p-3 my-3 bg-success text-light w-100 fw-bold ">{classData.data?.className}</h2>}
 
             {/* display section  */}
 
             <div>
 
                 {
-                    !classData.data ? <RotatingLines
-                        height="23"
-                        width="23"
-                        strokeColor="white"
-                        strokeWidth="5"
-                    /> :
+                    classData.isLoading ? <div className="d-flex w-100 justify-content-center pt-4"><RotatingLines
+                    strokeColor="grey"
+                /></div> :
                     <div className='row gap-5 d-flex justify-content-center'>
                         {
                             classData.data.section?.map((section,index)=>{

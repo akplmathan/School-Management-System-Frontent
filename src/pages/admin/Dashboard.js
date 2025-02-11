@@ -12,6 +12,7 @@ import { Doughnut } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
 import { BsGraphUpArrow, BsSearch } from "react-icons/bs";
 import { RotatingLines } from "react-loader-spinner";
+import { useQuery } from "@tanstack/react-query";
 
 // Register necessary components for Doughnut chart
 Chart.register(ArcElement, Tooltip, Legend);
@@ -23,10 +24,25 @@ const Dashboard = () => {
   const student = useSelector((state) => state.studentInfo.student);
   const teacher = useSelector((state) => state.teacherInfo.teacher);
   const parent = useSelector((state) => state.parentInfo.parent);
-  const classInfo = useSelector(state=>state.classInfo.class)
+  const[classInfo,setClassInfo] = useState([])
   const [presentCount, setPresentCount] = useState(null);
   const [filteredStudents,setFillteredStudents] = useState([]);
   const [searchQuery,setSearchQuery] = useState('')
+
+  const getYearBasedOnFebruary = () => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    return today.getMonth() >= 1 ? currentYear - 1 : currentYear;
+};
+
+  const classData = useQuery({
+    queryKey:["classData"],
+    queryFn :() =>  fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllClass?startYear=${getYearBasedOnFebruary()}`).then((data)=> data.json())
+  })
+    useEffect(()=>{
+        setClassInfo(classData?.data)
+      },[classData?.data])
+
   const storeData = [
     {
       label: "Students",

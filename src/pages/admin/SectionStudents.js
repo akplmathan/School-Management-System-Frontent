@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { enqueueSnackbar } from 'notistack'
+import { enqueueSnackbar, useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
 import { FaCross, FaPlus } from 'react-icons/fa'
 import { PiCrossBold } from 'react-icons/pi'
@@ -17,20 +17,31 @@ const SectionStudents = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false)
   const [addStudent, setAddStudent] = useState(false);
- 
+  const [importStudent, setImportStudent] = useState(false);
+  const classInfo = useSelector(state => state.classInfo.class)
+  const [sections, setSections] = useState([]);
+  const [sectionId, setSectionId] = useState("");
+  const [importClass, setImportClass] = useState([]);
+  const [selectedClassSection, setSelectedClassSection] = useState([])
+  const [selectedClassStudents, setSelectedClassStudents] = useState([])
+  const [checkedStudent,setCheckedStudent] = useState([]);
+  const {enqueueSnackbar,closeSnackbar} = useSnackbar()
+
   const studentData = useQuery({
     queryKey: ["studentData"],
     queryFn: () => fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/section/${params.id}`).then((res) => res.json())
   });
- 
+
+
+  console.log(studentData.data)
   const [formData, setFormData] = useState({
     image: "",
     name: "",
     emis: "",
     adhar: "",
-    className:location?.className,
-    section:"",
-    startYear:location?.startYear,
+    className: location?.className,
+    section: "",
+    startYear: location?.startYear,
     fatherName: "",
     motherName: "",
     parentPhone: "",
@@ -50,12 +61,38 @@ const SectionStudents = () => {
     password: "",
     preSclName: "",
     admissionDate: "",
-    tc: "", 
+    tc: "",
     BirthC: "",
-    givenMarksheet: "", 
-    handicab: "", 
+    givenMarksheet: "",
+    handicab: "",
 
   });
+
+  const handleCheckboxChange = (id) => {
+    setCheckedStudent((prev) => {
+      const index = prev.findIndex(item => item._id === id);
+      if (index > -1) {
+        return prev.filter(item => item._id !== id); // Remove item
+      } else {
+        const data = selectedClassStudents.find(item => item._id === id);
+        return data ? [...prev, data] : prev; // Add new item
+      }
+    });
+  };
+  
+  const handleClassChange = (e) => {
+    const result = importClass?.find(item => item._id == e.target.value);
+    setSelectedClassSection(result?.section)
+  }
+  const handleBatchChange = (e) => {
+    const result = classInfo?.filter(item => item.startYear == e.target.value);
+    setImportClass(result)
+  }
+
+  const handleSectionChange = (e) => {
+    const result = selectedClassSection?.find(item => item._id == e.target.value).students;
+    setSelectedClassStudents(result)
+  }
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -108,13 +145,35 @@ const SectionStudents = () => {
     setSpinner(false)
   }, 1500);
 
+  const handleImportStudents = async()=>{
+    try {
+      console.log("hii")
+        const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/admin/students/promote`,{
+        students:checkedStudent,sectionId:params.id , startYear:location.startYear,className:location.className 
+        },{
+          headers:{
+            Authorization:token
+          }
+        });
+       
+        console.log(response)
+        if(response.status == 200){
+            enqueueSnackbar(response.data.msg,{variant:"success"})
+            setImportStudent(false)
+        }else{
+          enqueueSnackbar(response.data.msg,{variant:"warning"})
+        }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
-
+  const uniqueBatch = [...new Map(classInfo?.map(obj => [obj.startYear, obj])).values()];
 
   useEffect(() => {
 
     setStudents(studentData.data?.section?.students)
-    setFormData({...formData,section:studentData.data?.section?._id})
+    setFormData({ ...formData, section: studentData.data?.section?._id })
   }, [studentData?.data])
   return (
     <div className='w-100 '>
@@ -127,17 +186,17 @@ const SectionStudents = () => {
           backgroundColor: "rgba(0, 0, 0, 0.59)",
           width: "100%",
           height: "100%",
-          paddingTop:"50%",
+          paddingTop: "50%",
           zIndex: 100,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          overflowY:"scroll"
+          overflowY: "scroll"
         }}
       >
         <div className="mx-2 container bg-secondary-subtle mt-5 rounded pt-4 justify-content-center w-75 ">
-        <p className='ms-auto text-end me-5' onClick={()=>setAddStudent(false)}><ImCross/> </p>
-              <h2 className="text-center fw-bold">Add Student</h2> 
+          <p className='ms-auto text-end me-5' onClick={() => setAddStudent(false)}><ImCross /> </p>
+          <h2 className="text-center fw-bold">Add Student</h2>
           <div className="row justify-content-center gap-4">
             <div className="col-lg-5">
               <form action="">
@@ -173,7 +232,7 @@ const SectionStudents = () => {
                       id="inputGroupFile02"
                     />
                   </div>
-                </div>                
+                </div>
                 <div className="input-group">
                   <label htmlFor="" className="fw-semibold my-2">
                     EMIS Number{" "}
@@ -225,7 +284,7 @@ const SectionStudents = () => {
                   </label>
                   <div class="input-group mb-3">
                     <input
-                      value={`${formData.startYear}-${formData.startYear+1}`}
+                      value={`${formData.startYear}-${formData.startYear + 1}`}
                       name="section"
                       type="text"
                       class="form-control"
@@ -369,7 +428,7 @@ const SectionStudents = () => {
                       type="number"
                       class="form-control"
                       id="inputGroupFile02"
-                      
+
                     />
                   </div>
                 </div>
@@ -377,8 +436,8 @@ const SectionStudents = () => {
             </div>
             <div className="col-lg-5">
               <form action="">
-             
-              <div className="input-group">
+
+                <div className="input-group">
                   <label htmlFor="" className="fw-semibold my-2">
                     Father Name
                   </label>
@@ -390,7 +449,7 @@ const SectionStudents = () => {
                       type="text"
                       class="form-control"
                       id="inputGroupFile02"
-                      
+
                     />
                   </div>
                 </div>
@@ -496,7 +555,7 @@ const SectionStudents = () => {
                       type="text"
                       class="form-control"
                       id="inputGroupFile02"
-                      
+
                     />
                   </div>
                 </div>
@@ -644,14 +703,173 @@ const SectionStudents = () => {
           </div>
         </div></div>}
 
+      {
+        importStudent && <div style={{ height: "100vh", width: "100%", position: "fixed", top: 0, left: 0, zIndex: 1000, backgroundColor: "rgba(0, 0, 0, 0.59)" }}>
+          <div className='bg-light mx-5 p-4'>
+            <div className="container-fluid d-lg-flex align-items-center justify-content-lg-between px-lg-5 px-2 my-4">
+              <div className="input-group">
+                <div className="d-flex w-auto">
+                  <label htmlFor="" className="me-3 fw-semibold my-2">
+                    Batch
+                  </label>
+                  <div class="input-group mb-3">
+                    <select
+                      class="form-select"
+                      onChange={(e) => {
+                        handleBatchChange(e);
+                      }}
+                      id="inputGroupSelect04"
+                      aria-label="Example select with button addon"
+                    >
+                      <option selected>Choose...</option>
+                      {uniqueBatch?.sort((a, b) => b.startYear - a.startYear).map((item, i) => {
+                        return (
+                          <option value={item.startYear}>
+                            {`${item?.startYear}-${item?.startYear + 1}`}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="input-group">
+                <div className="d-flex w-auto">
+                  <label htmlFor="" className="me-3 fw-semibold my-2">
+                    Class
+                  </label>
+                  <div class="input-group mb-3">
+                    <select
+                      class="form-select"
+                      onChange={(e) => {
+                        handleClassChange(e);
+                      }}
+                      id="inputGroupSelect04"
+                      aria-label="Example select with button addon"
+                    >
+                      <option selected>Choose...</option>
+                      {importClass?.map((item, i) => {
+                        return (
+                          <option value={item._id}>
+                            {item?.className}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="input-group">
+                <div className="d-flex w-auto">
+                  <label htmlFor="" className="me-3 fw-semibold my-2">
+                    Section
+                  </label>
+                  <div class="input-group mb-3">
+                    <select
+                      value={sections}
+                      onChange={handleSectionChange}
+                      class="form-select"
+                      id="inputGroupSelect04"
+                      aria-label="Example select with button addon"
+                    >
+                      <option selected value="">
+                        Choose...
+                      </option>
+                      {selectedClassSection?.map((item, i) => {
+                        return (
+                          <option value={item._id}>{item.section}</option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style={{ maxHeight: "50vh", overflowY: "scroll" }}>
+              <table
+                class="table  table-striped mt-4"
+                style={{ overflowX: "hidden" }}
+              >
+                <thead>
+                  <tr>
+                    <th className="bg-primary text-light py-3" scope="col">
+                      SELECT
+                    </th>
+
+                    <th className="bg-primary text-light py-3" scope="col">
+                      IMAGE
+                    </th>
+                    <th className="bg-primary text-light py-3" scope="col">
+                      EMIS NUMBER
+                    </th>
+                    <th className="bg-primary text-light py-3" scope="col">
+                      NAME
+                    </th>
+                    <th className="bg-primary text-light py-3" scope="col">
+                      EMAIL
+                    </th>
+                    <th className="bg-primary text-light py-3" scope="col">
+                      PHONE
+                    </th>
+
+
+                  </tr>
+                </thead>
+                {
+                  <div className='d-flex justify-content-center px-auto w-100'>
+                    {spinner && <RotatingLines
+                      strokeColor='grey'
+
+                    />}
+                  </div>
+                }
+                <tbody class="table-group-divider">
+                  {selectedClassStudents.map((item, i) => {
+                    return <tr>
+                      <th scope="row"> <input
+                        type="checkbox"
+                        onChange={() => handleCheckboxChange(item._id)}
+                      /></th>
+                      <td>
+                        <img
+                          src={
+                            item.image ||
+                            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                          }
+                          class="img-thumbnail"
+                          style={{ height: "60px" }}
+                          alt="..."
+                        />
+                      </td>
+                      <td className="fw-semibold">{item.emis}</td>
+                      <td className="fw-semibold">{item.name}</td>
+                      <td className="fw-semibold">{item.email}</td>
+                      <td className="fw-semibold">{item.phone}</td>
+
+                    </tr>
+
+                  })}
+                </tbody>
+              </table>
+
+            </div>
+            <div className="d-flex justify-content-center align-items-center w-100"><div className="btn btn-secondary p-2 w-50" onClick={()=> handleImportStudents()}>Import {checkedStudent.length} students</div></div>
+
+          </div>
+        </div>
+      }
+
       <div>
 
-       {location?.startYear && <div className="btn btn-info px-5 py-2" onClick={()=>setAddStudent(true)}><FaPlus /> Add Student</div>}
+        {location?.startYear && <div className="btn btn-info px-5 py-2" onClick={() => setAddStudent(true)}><FaPlus /> Add Student</div>}
+        {location?.startYear && <div className="btn btn-info px-5 py-2" onClick={() => setImportStudent(true)}><FaPlus /> Import Student from another Class</div>}
+
       </div>
       {
         // section && <div className='h5 d-flex p-2  justify-content-between'>
         //      {/* <span>{section?.className?.className}</span>
-        //      <span>Section - {section?.section}</span> */}
+        //      <span>Section - {section?.section}</span> 
+        // */}
         // </div>
       }
       <table

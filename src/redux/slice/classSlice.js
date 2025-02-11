@@ -15,10 +15,15 @@ export const classSlice = createSlice({
     }
   },
 });
+const getYearBasedOnFebruary = () => {
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  return today.getMonth() >= 1 ? currentYear - 1 : currentYear;
+};
 
 export const GetAllClasss = () => {
   return async (dispatch) => {
-  const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllClass`);
+  const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllClass?startYear=${getYearBasedOnFebruary()}`);
      dispatch(addClass(response.data));
   };
 };
