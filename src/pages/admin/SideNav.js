@@ -91,15 +91,6 @@ const SideNav = () => {
       </div>
 
       </Link>     
-  
-  <Link to='/admin/parents' className="text-decoration-none">
-  <div className="text-start my-1 d-flex align-items-center gap-2 ps-3 py-2 btn btn-secondary fw-semibold" style={{ 
-          backgroundColor: location.pathname === '/admin/parents' ? 'rgba(19, 12, 12, 0.16)' : '' 
-        }}>
-        <MdFamilyRestroom size={25} />{" "}
-    
-      </div>
-  </Link>
 
   <Link to='/admin/student' className="text-decoration-none">
   <div className="text-start my-1 d-flex align-items-center gap-2 ps-3 py-2 btn btn-secondary fw-semibold" style={{ 

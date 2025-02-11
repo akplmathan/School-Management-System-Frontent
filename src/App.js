@@ -15,7 +15,6 @@ import Student from "./pages/admin/Student";
 import Teacher from "./pages/admin/Teacher";
 import TProfile from "./pages/teacher/ProfileUpdate";
 import Navbar from "./components/Navbar";
-import Parents from "./pages/admin/Parents";
 import Subject from "./pages/admin/Subject";
 import Payment from "./pages/admin/Payments";
 import StuDashboard from "./pages/student/Dashboard";
@@ -135,7 +134,6 @@ const App = () => {
                   <Route path="/admin/student" element={<Student />} />
                   <Route path="/admin/student/section/:classID" element={<StudentSection />} />
                   <Route path="/admin/teacher" element={<Teacher />} />
-                  <Route path="/admin/parents" element={<Parents />} />
                   <Route path="/admin/subject" element={<Subject />} />
                   <Route path="/admin/payment" element={<Payment />} />
                   <Route path="/admin/roll-manage" element={<RollManage />} />

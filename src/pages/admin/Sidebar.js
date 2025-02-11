@@ -345,33 +345,6 @@ const Sidebar = ({ width }) => {
         </div>
       </Link>
 
-      <Link to="/admin/parents" className="text-decoration-none">
-        <div
-          className="text-start my-1 d-flex align-items-center gap-2 ps-3 py-2 btn btn-secondary fw-semibold"
-          style={{
-            backgroundColor:
-              location.pathname === "/admin/parents"
-                ? "rgba(19, 12, 12, 0.16)"
-                : "",
-          }}
-        >
-          <MdFamilyRestroom size={showSidebar ? 20 : 25} />{" "}
-          <span
-            className="justify-content-between align-items-center"
-            style={{
-              display: showSidebar ? "flex" : "none",
-              transition: "0.5s linear",
-              width: "100%",
-            }}
-          >
-            Manage Parents
-            <IoIosArrowForward />
-          </span>
-        </div>
-      </Link>
-
-  
-
       <Link to="/admin/teacher" className="text-decoration-none">
         <div
           className="text-start my-1 d-flex align-items-center gap-2 ps-3 py-2 btn btn-secondary fw-semibold"
