@@ -3,12 +3,13 @@ import Sidebar from "./Sidebar";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import { RotatingLines, TailSpin } from "react-loader-spinner";
-import { GetAllTeachers } from "../../redux/slice/teacherSlice";
-import { useSelector } from "react-redux";
+import { addTeacher, GetAllTeachers } from "../../redux/slice/teacherSlice";
+import { useDispatch, useSelector } from "react-redux";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { IoMdClose, IoMdDownload } from "react-icons/io";
 import SideNav from "./SideNav";
+import { useQuery } from "@tanstack/react-query";
 
 const Teacher = () => {
   const [spinner,setSpinner]  = useState(false)
@@ -21,6 +22,14 @@ const Teacher = () => {
   const teacherInfo = useSelector((state) => state.teacherInfo.teacher);
   const classInfo = useSelector((state) => state.classInfo.class);
   const [classTeacher, setClassTeacher] = useState([]);
+  const dispatch = useDispatch();
+
+  const teacherData  = useQuery({
+    queryKey:["teacher"],
+    queryFn:()=> fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllTeachers`).then(res=>res.json())
+  });
+
+
 
   //for convert page as pdf
   const contentRef = useRef();
@@ -50,22 +59,14 @@ const Teacher = () => {
   // };
 
   // list the selected class Teacher
-  const handleClass = (e) => {
-    setSpinner(true)
-    classInfo?.map((item, i) => {
-      if (item.number == e.target.value) {
-        return setClassTeacher(item.teacher);
-      }
-    });
-    setSpinner(false)
-  };
+
   //search teacher
   const handleSearch = (event) => {
     setSpinner(true)
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
 
-    const filtered = teacherInfo.filter((teacher) =>
+    const filtered = teacherData.data?.filter((teacher) =>
       teacher.name.toLowerCase().includes(query)
     );
     setFilteredTeachers(event.target.value ? filtered : "");
@@ -132,11 +133,13 @@ const Teacher = () => {
           },
         }
       );
-
+      setLoading(false);
       if (response.status == 201) {
         enqueueSnackbar("Updated Success", { variant: "success" });
         setEditTeacher(false);
-        window.location.reload();
+        dispatch(addTeacher())
+        teacherData.refetch()
+
       } else {
         console.log(response.data);
       }
@@ -199,10 +202,8 @@ const Teacher = () => {
 
       if (response.status == 201) {
         enqueueSnackbar(response.data.msg, { variant: "success" });
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        dispatch(addTeacher())
+        teacherData.refetch()
       } else {
         enqueueSnackbar(response.data.msg, { variant: "warning" });
       }
@@ -486,7 +487,7 @@ const Teacher = () => {
                       </form>
                     </div>
                     <button
-                      className="btn btn-success fw-bold my-4"
+                      className="btn btn-success fw-bold my-4 w-50"
                       onClick={(e) => {
                         handleUpdateTeacher(e);
                       }}
@@ -556,28 +557,6 @@ const Teacher = () => {
               <div>
                 <div className="container-fluid d-flex align-items-center justify-content-between px-lg-5 px-2">
                   <div className="input-group">
-                    <div className="d-flex w-auto">
-                      <label htmlFor="" className="me-3 fw-semibold my-2">
-                        Class
-                      </label>
-                      <div class="input-group mb-3">
-                        <select
-                          onChange={(e) => handleClass(e)}
-                          class="form-select"
-                          id="inputGroupSelect04"
-                          aria-label="Example select with button addon"
-                        >
-                          <option selected>Choose...</option>
-                          {classInfo?.map((item, i) => {
-                            return (
-                              <option key={i} value={item.number}>
-                                {item.className}
-                              </option>
-                            );
-                          })}
-                        </select>
-                      </div>
-                    </div>
                   </div>
                   {/* <div
                     className="btn btn-secondary position-absolute"
@@ -614,7 +593,7 @@ const Teacher = () => {
                       </tr>
                     </thead>
                     <tbody class="table-group-divider">
-                      {filteredTeachers.length > 0
+                      {filteredTeachers?.length > 0
                         ? spinner? <TailSpin
                         visible={true}
                         height="80"
@@ -681,7 +660,7 @@ const Teacher = () => {
                         radius="10"
                         wrapperStyle={{}}
                       
-                      />: classTeacher?.map((item, i) => {
+                      />: teacherData.data?.map((item, i) => {
                             return (
                               <tr>
                                 <th scope="row">{i + 1}</th>
@@ -732,8 +711,8 @@ const Teacher = () => {
                             );
                           })}
                     </tbody>
-                    {classTeacher.length == 0 &&
-                      filteredTeachers.length == 0 && (
+                    {teacherData.data?.length == 0 &&
+                      filteredTeachers?.length == 0 && (
                         <p className="text-center w-100">No Data Found</p>
                       )}
                   </table>

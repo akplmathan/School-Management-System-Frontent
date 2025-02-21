@@ -61,7 +61,7 @@ const Exam = () => {
   useEffect(() => {
     setSelectedClass(classInfo?.find((item) => item._id == classId)?.section);
     setSelectedClassList(
-      classInfo?.find((item) => item.number == selectedStudentClass)?.section
+      classInfo?.find((item) => item._id == selectedStudentClass)?.section
     );
   }, [classId, selectedStudentClass]);
 
@@ -139,7 +139,7 @@ const Exam = () => {
 
                           {classInfo?.map((item, i) => {
                             return (
-                              <option value={item.number}>
+                              <option value={item._id}>
                                 {item.className}
                               </option>
                             );

@@ -1,21 +1,15 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "./Sidebar";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import { GetAllClasss } from "../../redux/slice/classSlice";
 import { useSelector } from "react-redux";
-import { LineWave, Radio, RotatingLines, TailSpin, Watch } from "react-loader-spinner";
-import { IoMdClose } from "react-icons/io";
-import { MdDelete, MdEdit } from "react-icons/md";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { LineWave, RotatingLines } from "react-loader-spinner";
+import { Link, useNavigate } from "react-router-dom";
 import SideNav from "./SideNav";
 import { useQuery } from "@tanstack/react-query";
 
 const Classes = () => {
   // const classInfo = useSelector((state) => state.classInfo.class);
   const sectionInfo = useSelector((state) => state.sectionInfo.section);
-  const teacherInfo = useSelector((state) => state.teacherInfo.teacher);
-  const navigate = useNavigate()
   const [classInfo, setClassInfo] = useState([])
   //create class Data
   const [class1, setClass1] = useState({
@@ -24,18 +18,14 @@ const Classes = () => {
     startYear: "",
     endYear: ""
   })
-  const getYearBasedOnFebruary = () => {
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    return today.getMonth() >= 1 ? currentYear - 1 : currentYear;
-  };
+
+  const getYearForData = localStorage.getItem("currentYear")
 
   const classData = useQuery({
     queryKey: ["classData"],
-    queryFn: () => fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllClass?startYear=${getYearBasedOnFebruary()}`).then((data) => data.json())
+    queryFn: () => fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllClass?startYear=${getYearForData}`).then((data) => data.json())
   })
 
-  console.log(classData.data)
 
   useEffect(() => {
     setClassInfo(classData?.data)
@@ -50,37 +40,9 @@ const Classes = () => {
       [name]: value
     }))
   }
-  const [editClass, setEditClass] = useState(false);
-  const [editSection, setEditSection] = useState(false);
-  const [addSection, setAddSection] = useState(false);
-  const [selectedClass, setSelectedClass] = useState([])
-  const [selectedSection, setSelectedSection] = useState([])
-  const [classLetter, setClassLetter] = useState("");
-  const [classNumber, setClassNumber] = useState("");
-  const [teacherName, setTeacherName] = useState(null);
-  const [teacherId, setTeacherId] = useState("");
   const [loading1, setLoading1] = useState(false);
-  const [loading2, setLoading2] = useState(false);
   const token = localStorage.getItem("token");
   const { enqueueSnackbar } = useSnackbar();
-
-  //select Separate Classe;
-
-  const handleSelectSeparateClass = (e) => {
-
-    const classVal = (classInfo?.find(item => item.number == e.target.value))?.section
-    setSelectedClass(classVal);
-
-    const sectionVal = sectionInfo
-      .filter(section1 => classVal.some(section2 => section2._id === section1._id))
-      .map(student => student);
-    setSelectedSection(sectionVal)
-  };
-
-  //section register
-  const [className, setClassName] = useState("");
-  const [section, setSection] = useState("");
-
 
 
   const handleClassRegister = async () => {
@@ -113,32 +75,12 @@ const Classes = () => {
 
     <div className="w-100">
       <SideNav />
-      <h2 className="text-center p-3 my-3 bg-success text-light w-100 fw-bold ">Manage Classes ({`${getYearBasedOnFebruary()}-${getYearBasedOnFebruary() + 1}`})</h2>
+      <h2 className="text-center p-3 my-3 bg-success text-light w-100 fw-bold ">Manage Classes ({`${getYearForData}-${Number(getYearForData) + 1}`})</h2>
 
       {/* tabs ************************************************************************************************************** */}
 
       <div className="tabs">
         <div class="container-fluid p-0">
-
-
-          {/* Edit Section ********************* */}
-          {editSection && (
-            <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                backgroundColor: "rgba(0, 0, 0, 0.59)",
-                width: "100%",
-                height: "100vh",
-                zIndex: 100,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            ></div>
-          )}
-
 
           <ul
             class="nav nav-tabs bg-secondary-subtle pt-1 ps-2 w-100 m-0 p-0"
@@ -171,19 +113,7 @@ const Classes = () => {
                 Add New Class
               </a>
             </li>
-            <li class="nav-item">
-              <a
-                class="nav-link fw-bold "
-                id="tab3-tab"
-                data-toggle="tab"
-                href="#tab3"
-                role="tab"
-                aria-controls="tab3"
-                aria-selected="false"
-              >
-                Manage Section
-              </a>
-            </li>
+
           </ul>
 
           {/* Class List// ***************************************************************************/}
@@ -320,85 +250,6 @@ const Classes = () => {
               </div>
             </div>
 
-            {/* *********************************************tab-3 */}
-
-            <div
-              class="tab-pane fade p-3"
-              id="tab3"
-              role="tabpanel"
-              aria-labelledby="tab3-tab"
-            >
-              <div className="d-flex px-3 justify-content-between">
-                <div>
-                  <div className="d-flex w-auto">
-                    <label htmlFor="" className="me-3 fw-semibold my-2">
-                      Class
-                    </label>
-                    <div class="input-group mb-3">
-                      <select
-                        value={e => e.target.value}
-                        onChange={(e) =>
-                          handleSelectSeparateClass(e)
-                        }
-                        class="form-select"
-                        id="inputGroupSelect04"
-                        aria-label="Example select with button addon"
-                      >
-                        <option value={""}>Choose...</option>
-
-                        {classInfo?.map((item, i) => {
-                          return (
-                            <option value={item.number}>
-                              {item.className}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <button
-                    onClick={() => {
-                      setAddSection(true);
-                    }}
-                    className="btn btn-primary rounded text-light fw-semibold"
-                  >
-                    <span className="fw-bold">+</span> Add New Section
-                  </button>
-                </div>
-              </div>
-
-              {/* section from */}
-              <table class="table  table-striped mt-3">
-                <thead className="d-hidden">
-                  <tr>
-                    <th className="bg-primary py-3 text-light" scope="col">NO.</th>
-                    <th className="bg-primary py-3 text-light" scope="col">CLASS</th>
-                    <th className="bg-primary py-3 text-light" scope="col">SECTION</th>
-                    <th className="bg-primary py-3 text-light" scope="col">CLASS TEACHER</th>
-                    <th className="bg-primary py-3 text-light" scope="col">OPTIONS</th>
-                  </tr>
-                </thead>
-                <tbody class="table-group-divider">
-                  {selectedSection
-                    ? selectedSection?.map((item, i) => {
-                      return (
-                        <tr key={i}>
-                          <th scope="row">{i + 1}</th>
-                          <td className="fw-semibold">{item?.className?.className}</td>
-                          <td className="fw-semibold">{item.section}</td>
-                          <td className="fw-semibold">{item.teacher?.name}</td>
-                          <td >
-                            <div className="btn btn-danger fw-semibold">Delete </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                    : "No data Found"}
-                </tbody>
-              </table>
-            </div>
           </div>
         </div>
       </div>

@@ -30,7 +30,7 @@ const Marks = () => {
 
   useEffect(() => {
     setSelectedClassSection(
-      classInfo?.find((item) => item.number == selectedClass)?.section
+      classInfo?.find((item) => item._id == selectedClass)?.section
     );
 
     setSection(sectionInfo?.find((item) => item._id == selectedSection));
@@ -182,7 +182,7 @@ const Marks = () => {
                     <option value="">Choose..</option>
                     {classInfo?.map((item, i) => {
                       return (
-                        <option key={i} value={item.number}>
+                        <option key={i} value={item._id}>
                           {item.className}
                         </option>
                       );
@@ -338,7 +338,7 @@ const Marks = () => {
                     <option value="">Choose..</option>
                     {classInfo?.map((item, i) => {
                       return (
-                        <option key={i} value={item.number}>
+                        <option key={i} value={item._id}>
                           {item.className}
                         </option>
                       );

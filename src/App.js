@@ -62,6 +62,8 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
 import StudentSection from "./pages/admin/StudentSection";
 import { GetAllStudents } from "./redux/slice/studentSlice";
 import { GetAllTeachers } from "./redux/slice/teacherSlice";
+import {GetAllSections} from "./redux/slice/sectionSlice"
+import NotFound from "./components/NotFound";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -80,6 +82,7 @@ const App = () => {
     dispatch(GetAllClasss())
     dispatch(GetAllTeachers())
     dispatch(GetAllStudents())
+    dispatch(GetAllSections())
     const token = localStorage.getItem("token");
     if (token) {
       dispatch(verifyToken(token));
@@ -101,6 +104,7 @@ const App = () => {
               </div>
             )}
             <Routes>
+              <Route path="*" element={<NotFound/>}/>
               {/* Login Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/admin-login" element={<AdminLogin />} />

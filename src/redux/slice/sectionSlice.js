@@ -21,7 +21,6 @@ export const GetAllSections = () => {
   return async (dispatch) => {
     if (role) {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/admin/getAllSection`);
-
       dispatch(addSection(response.data));
     }
   };
